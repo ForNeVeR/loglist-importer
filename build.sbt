@@ -12,5 +12,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick" % "2.1.0",
   "org.slf4j" % "slf4j-nop" % "1.6.4",
   "com.h2database" % "h2" % "1.3.173",
-  "mysql" % "mysql-connector-java" % "5.1.32"
+  "mysql" % "mysql-connector-java" % "5.1.32",
+  "org.apache.commons" % "commons-lang3" % "3.3.2"
 )

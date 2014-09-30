@@ -4,7 +4,9 @@ import java.io.{FileInputStream, InputStreamReader}
 import java.sql.Timestamp
 import java.util.Properties
 
-import scala.slick.driver.H2Driver.{simple => h2}
+import org.apache.commons.lang3.StringEscapeUtils
+
+import scala.slick.driver.PostgresDriver.{simple => postgreSQL}
 import scala.slick.driver.MySQLDriver.{simple => mySQL}
 
 object Application extends App {
@@ -18,16 +20,19 @@ object Application extends App {
       import mySQL._
       val legacyQuotes = mySQL.TableQuery[legacy.QuoteTable]
 
-      h2.Database.forURL(
+      postgreSQL.Database.forURL(
         config.getProperty("actual.url"),
         config.getProperty("actual.user"),
         config.getProperty("actual.password")) withSession { implicit h2Session =>
-        val actualQuotes = h2.TableQuery[actual.QuoteTable]
+        val actualQuotes = postgreSQL.TableQuery[actual.QuoteTable]
 
         var counter = 0
         legacyQuotes.foreach({case (id, text, time) =>
-           actualQuotes += (0, new Timestamp(time), text)
+          if (!text.contains("<a")) {
+            val properText = StringEscapeUtils.unescapeHtml4(text.replace("<br>", "\n"))
+            actualQuotes += (0, new Timestamp(time), properText)
             counter += 1
+          }
         })(mySQLSession)
         println(s"$counter rows were imported")
       }
