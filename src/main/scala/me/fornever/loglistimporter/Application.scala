@@ -23,14 +23,15 @@ object Application extends App {
       postgreSQL.Database.forURL(
         config.getProperty("actual.url"),
         config.getProperty("actual.user"),
-        config.getProperty("actual.password")) withSession { implicit h2Session =>
+        config.getProperty("actual.password")) withSession { postgreSQLSession =>
         val actualQuotes = postgreSQL.TableQuery[actual.QuoteTable]
 
         var counter = 0
         legacyQuotes.foreach({case (id, text, time) =>
           if (!text.contains("<a")) {
+            import postgreSQL._
             val properText = StringEscapeUtils.unescapeHtml4(text.replace("<br>", "\n"))
-            actualQuotes += (0, new Timestamp(time), properText)
+            actualQuotes.+=(0, new Timestamp(time * 1000), properText)(postgreSQLSession)
             counter += 1
           }
         })(mySQLSession)

@@ -1,7 +1,7 @@
 package me.fornever.loglistimporter.actual
 
 import java.sql.Timestamp
-import scala.slick.driver.H2Driver.simple._
+import scala.slick.driver.PostgresDriver.simple._
 
 class QuoteTable(tag: Tag) extends Table[(Long, Timestamp, String)](tag, "QUOTE") {
 
